@@ -11,8 +11,8 @@ struct StopwatchState: Equatable, Hashable {
     var status: StopwatchStatus = .INITIAL
 }
 
-class Stopwatch {
-    private(set) var state = ObservableState(StopwatchState())
+class Stopwatch<S: StateObserver<StopwatchState>> {
+    private(set) var state = ObservableState<S>(StopwatchState())
     
     private var task: Task<(), Never>? = nil
 

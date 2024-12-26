@@ -1,22 +1,22 @@
 import SwiftUI
 
-class StopwatchViewDataAdapter: StateObserver<ViewData>, ObservableObject {
+class StopwatchViewDataAdapter: StateObserver, ObservableObject {
     @Published var data: ViewData
     
     init(_ data: ViewData) {
         self.data = data
     }
 
-    override func onStateChange(_ state: ViewData) {
+    func onStateChange(_ state: ViewData) {
         self.data = state
     }
 }
 
-struct StopwatchView: View {
-    private var vm: StopwatchViewModel
+struct StopwatchView<VM: StopwatchViewModel<StopwatchViewDataAdapter>>: View {
+    private var vm: VM
     @StateObject private var dataAdpter: StopwatchViewDataAdapter
 
-    init(_ vm: StopwatchViewModel = StopwatchViewModel()) {
+    init(_ vm: VM = StopwatchViewModel<StopwatchViewDataAdapter>()) {
         self.vm = vm
         let adapter = StopwatchViewDataAdapter(vm.state.state)
         _dataAdpter = StateObject(wrappedValue: adapter)

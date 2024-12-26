@@ -1,40 +1,32 @@
 import Foundation
 
-class StateObserver<T>: Identifiable, Equatable, Hashable {
-    let id = UUID()
-
-    func onStateChange(_ state: T) { }
+protocol StateObserver<T>: Identifiable {
+    associatedtype T
     
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (lhs: StateObserver<T>, rhs: StateObserver<T>) -> Bool {
-        lhs.id == rhs.id
-    }
+    func onStateChange(_ state: T)
 }
 
-class ObservableState<T, S: StateObserver<T>> {
-    private(set) var state: T
+class ObservableState<S: StateObserver> {
+    private(set) var state: S.T
     
-    private var observers: Set<S> = []
+    private var observers: Dictionary<S.ID, S> = Dictionary()
     
-    init(_ state: T) {
+    init(_ state: S.T) {
         self.state = state
     }
 
     func addObserver(_ observer: S) {
-        observers.insert(observer)
+        observers[observer.id] = observer
     }
     
     func removeObserver(_ observer: S) {
-        observers.remove(observer)
+        observers[observer.id] = nil
     }
     
-    func updateState(_ state: T) {
+    func updateState(_ state: S.T) {
         self.state = state
 
-        for observer in observers {
+        for (_, observer) in observers {
             observer.onStateChange(self.state)
         }
     }

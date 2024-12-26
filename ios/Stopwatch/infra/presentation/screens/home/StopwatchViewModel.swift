@@ -3,13 +3,12 @@ struct ViewData {
     let status: StopwatchStatus
 }
 
-class StopwatchViewModel: StateObserver<StopwatchState> {
-    private let stopwatch = Stopwatch()
+class StopwatchViewModel<S: StateObserver<ViewData>>: StateObserver {
+    private let stopwatch = Stopwatch<StopwatchViewModel>()
     
-    private(set) var state = ObservableState(ViewData(timeFormatted: "0.0 s", status: .INITIAL))
+    private(set) var state = ObservableState<S>(ViewData(timeFormatted: "0.0 s", status: .INITIAL))
     
-    override init() {
-        super.init()
+    init() {
         stopwatch.state.addObserver(self)
     }
     
@@ -31,7 +30,7 @@ class StopwatchViewModel: StateObserver<StopwatchState> {
         stopwatch.reset()
     }
     
-    override func onStateChange(_ state: StopwatchState) {
+    func onStateChange(_ state: StopwatchState) {
         self.state.updateState(
             ViewData(
                 timeFormatted: String(format: "%.1f s", state.seconds),
